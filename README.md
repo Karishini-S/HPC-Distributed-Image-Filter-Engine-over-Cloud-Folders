@@ -128,14 +128,6 @@ Finally, evaluate performance, scalability, and reliability.
 
 ---
 
-## Technologies Used
-- **Languages**: Python  
-- **Libraries**: OpenCV, NumPy, Multiprocessing, MPI4Py  
-- **Cloud Services**: Google Drive / AWS S3 (storage integration)  
-- **Tools**: GitHub, Docker (optional for workers), Linux HPC cluster  
-
----
-
 ## Contributors
 - **Karishini S&nbsp;&nbsp;- [CB.AI.U4AID23013]**
 - **Gowri J S&nbsp;&nbsp;&nbsp;&nbsp;- [CB.AI.U4AID23055]** 
