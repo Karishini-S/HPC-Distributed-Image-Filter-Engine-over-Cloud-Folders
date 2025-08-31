@@ -40,7 +40,7 @@ Now that the pipeline works, we introduce **parallel workers** to handle multipl
 
 5. **Implement Parallel Processing**  
    - Use **Python Multiprocessing** for shared-memory parallelism.  
-   - Optionally use **MPI4Py** to simulate distributed memory parallelism.  
+   - Use **MPI4Py** to simulate distributed memory parallelism.  
 
 6. **Benchmark Performance**  
    - Measure sequential vs parallel execution times.  
