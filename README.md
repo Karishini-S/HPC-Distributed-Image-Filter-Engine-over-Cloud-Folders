@@ -5,15 +5,15 @@ The goal of this project is to design and implement a **distributed image filter
 When a new image is uploaded, the system applies a set of predefined filters (e.g., grayscale, blur, and edge detection) and stores the processed results in the appropriate output folder.  
 
 Traditional sequential processing becomes inefficient when handling large volumes of images. This project leverages **High-Performance Computing (HPC) techniques** such as **task parallelism, distributed memory computing (MPI), and multiprocessing** to speed up the workflow.  
-Additionally, the system integrates with **cloud storage** (e.g., Google Drive or AWS S3) to enable automation and scalability.  
+Additionally, the system integrates with **cloud storage** to enable automation and scalability.  
 
 The final deliverable will be a **comparative analysis** of sequential vs distributed processing performance, demonstrating improvements in throughput, scalability, and fault tolerance.  
 
 ---
 
-## Step-by-Step Project Plan
+## Project Plan
 
-### **Phase 1: Core Image Processing Module (Week 1)**
+### **Phase 1: Core Image Processing Module, Parallelization & Worker Logic (Week 1-3)**
 The first step is to build a working sequential pipeline with OpenCV. This ensures basic functionality is correct before scaling to distributed execution.
 
 1. **Understand Image Filters**  
@@ -32,26 +32,23 @@ The first step is to build a working sequential pipeline with OpenCV. This ensur
      ```  
    - Test correctness on small sets of images.  
 
----
-
-### **Phase 2: Parallelization & Worker Logic (Weeks 2–3)**
 Now that the pipeline works, we introduce **parallel workers** to handle multiple images simultaneously.
 
-1. **Design Master–Worker Model**  
+4. **Design Master–Worker Model**  
    - Master process pushes tasks (image + filter) into a **queue**.  
    - Worker processes fetch tasks, apply filters, and save results.  
 
-2. **Implement Parallel Processing**  
+5. **Implement Parallel Processing**  
    - Use **Python Multiprocessing** for shared-memory parallelism.  
    - Optionally use **MPI4Py** to simulate distributed memory parallelism.  
 
-3. **Benchmark Performance**  
+6. **Benchmark Performance**  
    - Measure sequential vs parallel execution times.  
    - Scale with number of workers (1, 2, 4, 8).  
 
 ---
 
-### **Phase 3: HPC Enhancements (Weeks 4–5)**
+### **Phase 2: HPC Enhancements & Cloud Storage Integration (Weeks 4–7)**
 To make the system robust and closer to real HPC applications, enhancements are introduced.
 
 1. **Load Balancing**  
@@ -67,25 +64,22 @@ To make the system robust and closer to real HPC applications, enhancements are 
 4. **Memory Optimization**  
    - For very large images, process them in **chunks** instead of loading entirely.  
 
----
-
-### **Phase 4: Cloud Storage Integration (Weeks 6–7)**
 To make the system practical, we integrate with cloud storage.
 
-1. **Cloud Folder Monitoring**  
+5. **Cloud Folder Monitoring**  
    - Detect when a new image is uploaded (polling/trigger simulation).  
 
-2. **Automation**  
+6. **Automation**  
    - Automatically send images through the processing pipeline.  
    - Place processed results in output folder(s).  
 
-3. **Job Tracking & Monitoring**  
+7. **Job Tracking & Monitoring**  
    - Log jobs for success/failure.  
    - Track processing times for analysis.  
 
 ---
 
-### **Phase 5: Performance Evaluation & Documentation (Weeks 8–9)**
+### **Phase 3: Performance Evaluation (Weeks 8–9)**
 Finally, evaluate performance, scalability, and reliability.
 
 1. **Performance Tests**  
@@ -97,29 +91,25 @@ Finally, evaluate performance, scalability, and reliability.
    - Simulate worker failures.  
    - Check system recovery and task reassignment.  
 
-3. **Documentation**  
-   - Finalize `README.md` and project report.  
-   - Visualize architecture and results with plots.  
-
 ---
 
 ## Project Architecture
 
-     ┌─────────────┐       ┌─────────────┐
-     │ Cloud Input │──────▶│   Listener   │
-     └─────────────┘       └──────┬──────┘
+     ┌─────────────┐        ┌─────────────┐
+     │ Cloud Input │───────>│   Listener  │
+     └─────────────┘        └──────┬──────┘
                                    │
                                    ▼
                           ┌─────────────────┐
                           │ Task Queue (MQ) │
-                          └──────┬──────────┘
-                                 │
-        ┌─────────────┬──────────┴──────────┬─────────────┐
-        │ Worker 1    │   Worker 2          │   Worker N   │
-        │ (MPI/Proc)  │   (MPI/Proc)        │   (MPI/Proc) │
-        └─────┬───────┘   └─────┬──────────┘   └─────┬────┘
-              │                │                     │
-              ▼                ▼                     ▼
+                          └────────┬────────┘
+                                   │
+        ┌─────────────┬─┬──────────┴──┬───────┬─────────────┐
+        │ Worker 1    │ │ Worker 2    │  ...  │  Worker N   │
+        │ (MPI/Proc)  │ │ (MPI/Proc)  │       │  (MPI/Proc) │
+        └─────┬───────┘ └─────┬───────┘       └─────┬───────┘
+              │               │                     │
+              ▼               ▼                     ▼
         ┌─────────────┐ ┌─────────────┐       ┌─────────────┐
         │  Output 1   │ │  Output 2   │  ...  │  Output N   │
         └─────────────┘ └─────────────┘       └─────────────┘
@@ -132,11 +122,9 @@ Finally, evaluate performance, scalability, and reliability.
 
 | Phase | Task | Duration |
 |-------|------|----------|
-| Phase 1 | Core Image Processing (Sequential) | Week 1 |
-| Phase 2 | Parallelization with Workers | Weeks 2–3 |
-| Phase 3 | HPC Enhancements (Load Balancing, Fault Tolerance, Hybrid Parallelism) | Weeks 4–5 |
-| Phase 4 | Cloud Storage Integration | Weeks 6–7 |
-| Phase 5 | Performance Evaluation & Documentation | Weeks 8–9 |
+| Phase 1 | Core Image Processing & Parallelization with Workers | Weeks 1–3 |
+| Phase 2 | HPC Enhancements & Cloud Storage Integration | Weeks 4–7 |
+| Phase 3 | Performance Evaluation | Weeks 8–9 |
 
 ---
 
@@ -149,16 +137,8 @@ Finally, evaluate performance, scalability, and reliability.
 ---
 
 ## Contributors
-- **Person 1** → Cloud Pipeline & Filter Implementation  
-- **Person 2** → Parallelization & Worker Logic  
-- **Person 3** → Cloud Storage Integration & Automation  
-
----
-
-## Expected Outcomes
-- A **distributed image filtering engine** that works with cloud folders.  
-- Comparative analysis of **sequential vs distributed processing**.  
-- Demonstrated benefits of **load balancing, fault tolerance, and hybrid parallelism**.  
-- Foundation for scaling to **advanced filters and cloud-native features**.  
+- **Karishini S&nbsp;&nbsp;- [CB.AI.U4AID23013]**
+- **Gowri J S&nbsp;&nbsp;&nbsp;&nbsp;- [CB.AI.U4AID23055]** 
+- **Akshaya V&nbsp;&nbsp;- [CB.AI.U4AID23064]**
 
 ---
