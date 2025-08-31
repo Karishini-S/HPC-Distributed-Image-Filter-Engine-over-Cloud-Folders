@@ -4,6 +4,7 @@ import cv2
 import multiprocessing as mp
 from queue_manager import QueueManager
 import threading
+from workers.worker import worker_run 
 
 '''def process_image(input_path, output_folder, filters):
     img = cv2.imread(input_path)
@@ -16,12 +17,12 @@ import threading
         processed = f(img)
         save_image(processed, output_folder, f"{base_name}_{f.__name__}.jpg")'''
 
-def create_tasks(input_folder, filters, task_queue):
+def create_tasks(input_folder, output_folder, filters, task_queue):
     for file in os.listdir(input_folder):
         if file.lower().endswith((".jpg", ".jpeg", ".png")):
             img_path = os.path.join(input_folder, file)
             print(f"Master: Queuing task: {img_path}")
-            task_queue.put((img_path, filters))
+            task_queue.put((img_path, output_folder, filters))
     print("Master: All tasks queued.")
 
 if __name__ == "__main__":
@@ -37,21 +38,34 @@ if __name__ == "__main__":
             process_image(img_path, output_folder, filters)
 
     print("Sequential processing finished!")'''
-    # Distributed processing setup
+
     manager = QueueManager(address=("127.0.0.1", 5000), authkey=b"abc")
     server = manager.get_server()
     print("Master: Starting manager server...")
+
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    
+
     manager_client = QueueManager(address=("127.0.0.1", 5000), authkey=b"abc")
     manager_client.connect()
     task_queue = manager_client.get_task_queue()
-    
-    # Queue tasks
-    create_tasks(input_folder, filters, task_queue)
-    
+
+    # Start workers as separate processes (instead of manual run)
     num_workers = 3
-    for i in range(num_workers):
+    workers = []
+    for wid in range(num_workers):
+        p = mp.Process(target=worker_run, args=(wid, output_folder))
+        p.start()
+        workers.append(p)
+
+    # Queue tasks
+    create_tasks(input_folder, output_folder, filters, task_queue)
+
+    # Send STOP signals
+    for _ in range(num_workers):
         task_queue.put("STOP")
-    
-    print("Master: Done queuing tasks. Workers can process now.")
+
+    # Wait for workers to finish
+    for p in workers:
+        p.join()
+
+    print("Master: All tasks completed.")
